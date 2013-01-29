@@ -10,7 +10,7 @@ import sys
 from nordnet.listeners import PublicListener
 from nordnet.restsession import *
 
-def test_listener():
+def _test_listener():
     """ Simple entry for tests """
     hashkey = make_hash()
     connection = connect()
@@ -21,10 +21,15 @@ def test_listener():
     port = response['public_feed']['port']
 
     print 'Opening socket to: %s:%s' % (hostname, port)
-    publiclistener = PublicListener(session_key, hostname, port)
+    publiclistener = PublicListener(None) # Should be queue
+    publiclistener.setup(session_key, hostname, port)
     publiclistener.login()
     publiclistener.subscribe(11, 101)
     try:
         publiclistener.start()
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
+
+
+import nose
+nose.main()

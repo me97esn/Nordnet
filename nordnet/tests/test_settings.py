@@ -43,3 +43,6 @@ def test_keyfile():
     """ Testing the key-file """
     keyfile = config.public_key
     print keyfile
+
+import nose
+nose.main()

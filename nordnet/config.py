@@ -33,6 +33,7 @@ class NordnetConfig(object):
     
     def __init__(self):
         self._configparser = ConfigParser()
+        print "Reading config from %s" % (CONFIG)
         self._configparser.read(CONFIG)
 
     def _get_field(self, section, field):
