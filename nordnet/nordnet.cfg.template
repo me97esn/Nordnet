@@ -1,7 +1,7 @@
 [Session]
 # details for the session
-username = xxxxxx
-password = xxxxxx
+username = xxxxx
+password = xxxxx
 service = NEXTAPI
 url = api.test.nordnet.se
 base_url = api.test.nordnet.se/next
