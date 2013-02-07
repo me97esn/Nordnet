@@ -73,7 +73,7 @@ class withAuth():
     def __init__(self, f):
         self.decorated_function = f
 
-    def __call__(self):
+    def __call__(self, *args):
         # TODO should check if session is alive, and login again if it has timedout
         if self.connection is None:
             self.connect()
@@ -82,18 +82,30 @@ class withAuth():
             self.login()
 
 
-        return self.decorated_function(self) # Prove that function definition has completed
+        return self.decorated_function(self, *args)
 
 class RestSession():
     config = NordnetConfig()
 
     @withAuth
-    def get_accounts(self):
+    def get_accounts(self, *args):
         """ Gets the server status """
         connectionstring = 'https://' + config.base_url \
             + '/' + config.api_version + '/accounts'
 
-        print "Using auth headers: %s" % (self.auth_headers)
+        self.connection.request('GET',
+                           connectionstring,
+                           '',
+                           headers=self.auth_headers)
+        response = self.connection.getresponse()
+        return jloads(response.read())
+
+    @withAuth
+    def get_account(self, *args):
+        """ Gets the server status """
+        connectionstring = 'https://' + config.base_url \
+            + '/' + config.api_version + '/accounts/' + args[0]
+
         self.connection.request('GET',
                            connectionstring,
                            '',
