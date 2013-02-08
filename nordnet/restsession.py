@@ -85,7 +85,7 @@ class withAuth(RestBase):
     def __init__(self, f):
         self.decorated_function = f
 
-    def __call__(self, *args):
+    def __call__(self, **kwargs):
         # TODO should check if session is alive, and login again if it has timedout
         if self.connection is None:
             self.connect()
@@ -94,18 +94,24 @@ class withAuth(RestBase):
             self.login()
 
 
-        return self.decorated_function(self, *args)
+        return self.decorated_function(self, **kwargs)
 
 class RestSession(RestBase):
     config = NordnetConfig()
 
     @withAuth
-    def get_accounts(self, *args):
+    def get_accounts(self, **kwargs):
         return self.request(method='GET', relative_url='/accounts')
 
     @withAuth
-    def get_account(self, *args):
-        return self.request(method='GET', relative_url='/accounts/' + args[0])
+    def get_account(self, **kwargs):
+        return self.request(method='GET', relative_url='/accounts/' + kwargs['id'])
+
+    @withAuth
+    def buy(self, **kwargs):
+        return self.request(method='GET', relative_url='/accounts/' + kwargs[0])
+
+
 
 class _RestSession():
     def __init__(self):
