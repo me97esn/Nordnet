@@ -24,10 +24,22 @@ no_auth_headers = {
 
 # __all__ = ['make_hash', 'connect', 'get_status', 'login']
 
-class withAuth():
+class RestBase():
     connection = None
     auth_headers = None
 
+    def request(self, relative_url='/', method='GET', ):
+        connectionstring = 'https://' + config.base_url \
+            + '/' + config.api_version + relative_url
+
+        self.connection.request(method,
+                           connectionstring,
+                           '',
+                           headers=self.auth_headers)
+        response = self.connection.getresponse()
+        return jloads(response.read())
+
+class withAuth(RestBase):
     def make_hash(self):
         """ Makes the key for authentication according to the
         specification on Nordnets page """
@@ -84,36 +96,16 @@ class withAuth():
 
         return self.decorated_function(self, *args)
 
-class RestSession():
+class RestSession(RestBase):
     config = NordnetConfig()
 
     @withAuth
     def get_accounts(self, *args):
-        """ Gets the server status """
-        connectionstring = 'https://' + config.base_url \
-            + '/' + config.api_version + '/accounts'
-
-        self.connection.request('GET',
-                           connectionstring,
-                           '',
-                           headers=self.auth_headers)
-        response = self.connection.getresponse()
-        return jloads(response.read())
+        return self.request(method='GET', relative_url='/accounts')
 
     @withAuth
     def get_account(self, *args):
-        """ Gets the server status """
-        connectionstring = 'https://' + config.base_url \
-            + '/' + config.api_version + '/accounts/' + args[0]
-
-        self.connection.request('GET',
-                           connectionstring,
-                           '',
-                           headers=self.auth_headers)
-        response = self.connection.getresponse()
-        print "response: %s" % (response)
-        logger.info("*"*20)
-        return jloads(response.read())
+        return self.request(method='GET', relative_url='/accounts/' + args[0])
 
 class _RestSession():
     def __init__(self):
