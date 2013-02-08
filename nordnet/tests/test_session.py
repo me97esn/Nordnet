@@ -25,7 +25,7 @@ def test_get_accounts():
 def test_get_account():
     session = RestSession()
     accounts = session.get_accounts()
-    account = session.get_account(id=accounts[0]['id'])
+    account = session.get_account(account_id=accounts[0]['id'])
 
     pprint.pprint(account)
     ok_(account['accountCurrency'], msg='Failed getting account from json')
@@ -35,7 +35,8 @@ def test_get_account():
 def test_buy_ericsson():
     session = RestSession()
     accounts = session.get_accounts()
-    account = session.get_account(accounts[0]['id'])
+
+    account = session.buy(volume=1, price=100, identifier=101,account_id=accounts[0]['id'])
 
     pprint.pprint(account)
     ok_(account['accountCurrency'], msg='Failed getting account from json')

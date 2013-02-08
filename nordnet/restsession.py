@@ -10,7 +10,8 @@ from M2Crypto import RSA
 from httplib import HTTPSConnection, HTTPException
 from urllib import urlencode
 from json import loads as jloads
-
+import requests
+import json
 from nordnet.config import NordnetConfig, get_logger
 from nordnet.utils import print_json
 
@@ -27,6 +28,18 @@ no_auth_headers = {
 class RestBase():
     connection = None
     auth_headers = None
+    marketID = 11
+    currency = 'SEK'
+
+    def post(self, relative_url='/', data={}):
+        url = 'https://%s/%s%s' % (config.base_url,config.api_version, relative_url)
+
+        r = requests.post(url,
+                      data=data,
+                      headers=self.auth_headers
+        ).text
+        return json.loads(r)
+
 
     def request(self, relative_url='/', method='GET', ):
         connectionstring = 'https://' + config.base_url \
@@ -105,11 +118,14 @@ class RestSession(RestBase):
 
     @withAuth
     def get_account(self, **kwargs):
-        return self.request(method='GET', relative_url='/accounts/' + kwargs['id'])
+        return self.request(method='GET', relative_url='/accounts/' + kwargs['account_id'])
 
     @withAuth
     def buy(self, **kwargs):
-        return self.request(method='GET', relative_url='/accounts/' + kwargs[0])
+        return self.post(relative_url='/accounts/%s/orders' % kwargs['account_id'],
+                         data={'identifier':kwargs['identifier'],'marketID':self.marketID,
+                            'price':kwargs['price'],'volume':kwargs['volume'],'currency':self.currency,
+                            'side':'buy'})
 
 
 
