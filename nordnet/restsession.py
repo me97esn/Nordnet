@@ -138,4 +138,14 @@ class RestSession(RestBase):
 
         return self.post(relative_url=url,
                          data=data)
+    @withAuth
+    def sell(self, **kwargs):
+        data = {'identifier': kwargs['identifier'], 'marketID': self.marketID, 'price': kwargs['price'],
+                       'volume': kwargs['volume'], 'currency': self.currency, 'side': 'sell'}
+        url = '/accounts/%s/orders' % kwargs['account_id']
+
+        print "posting %s to %s" % (data, url)
+
+        return self.post(relative_url=url,
+                         data=data)
 
