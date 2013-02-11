@@ -121,6 +121,14 @@ class RestSession(RestBase):
         return self.request(method='GET', relative_url='/accounts/' + kwargs['account_id'])
 
     @withAuth
+    def get_orders(self, **kwargs):
+        return self.request(method='GET', relative_url="/accounts/%s/orders" % (kwargs['account_id']))
+
+    @withAuth
+    def get_positions(self, **kwargs):
+        return self.request(method='GET', relative_url="/accounts/%s/positions" % (kwargs['account_id']))
+
+    @withAuth
     def buy(self, **kwargs):
         data = {'identifier': kwargs['identifier'], 'marketID': self.marketID, 'price': kwargs['price'],
                        'volume': kwargs['volume'], 'currency': self.currency, 'side': 'buy'}
@@ -131,82 +139,3 @@ class RestSession(RestBase):
         return self.post(relative_url=url,
                          data=data)
 
-
-
-class _RestSession():
-    def __init__(self):
-        self.http_basic_auth = None
-        self.connection = None
-
-    def make_hash(self):
-        """ Makes the key for authentication according to the
-        specification on Nordnets page """
-        timestamp = str(int(round(time.time()*1000)))
-        auth = b64encode(config.username) + ':' \
-            + b64encode(config.password) + ':' \
-            + b64encode(timestamp)
-        rsa = RSA.load_pub_key(config.public_key)
-        encrypted_auth = rsa.public_encrypt(auth, RSA.pkcs1_padding)
-        print 'Made hashkey:'
-        key = b64encode(encrypted_auth)
-        return key
-
-    def connect(self):
-        """ Establishing a connection """
-        self.connection = HTTPSConnection(config.url)
-        return self.connection
-
-    def get_status(connection):
-        """ Gets the server status """
-        connectionstring = 'https://' + config.base_url \
-            + '/' + config.api_version
-
-        logger.info('Trying to get status: %s' % connectionstring)
-        logger.info('Applying header: %s' % headers)
-
-        connection.request('GET', 
-                           connectionstring, 
-                           '',
-                           headers)
-        response = connection.getresponse()
-        return jloads(response.read())
-
-    def get_accounts(connection):
-        """ Gets the server status """
-        connectionstring = 'https://' + config.base_url \
-            + '/' + config.api_version + '/accounts'
-
-        connection.request('GET',
-                           connectionstring,
-                           '',
-                           headers=headers)
-        response = connection.getresponse()
-        logger.info("*"*20)
-        logger.info("accounts: %s" % (response))
-        return jloads(response.read())
-
-    def login(self):
-        hashkey = self.make_hash()
-        connection = self.connection or self.connect()
-
-        """ Logs in to the server """
-        parameters = urlencode({ 'service' : config.service,
-                                 'auth' : hashkey })
-        print "parameters for login: '%s'" % (parameters)
-        connectionstring = 'https://' + config.base_url + '/' \
-            + config.api_version + '/login'
-        
-        logger.info('Trying to login to REST: %s' % connectionstring)
-        logger.info('Applying header: %s' % headers)
-        
-        connection.request('POST', connectionstring, parameters, headers)
-
-        response = connection.getresponse()
-        response_as_json = jloads(response.read())
-
-        basic_http_auth = b64encode("%s:%s" % (response_as_json['session_key'], response_as_json['session_key']))
-        self.basic_http_auth = basic_http_auth
-
-    def logoff(connection, sessionkey):
-        """ Disconnects from the server """
-        raise NotImplementedError, 'Logoff-method not implemented.'

@@ -28,9 +28,20 @@ def test_get_account():
     account = session.get_account(account_id=accounts[0]['id'])
 
     pprint.pprint(account)
-    ok_(account['accountCurrency'], msg='Failed getting account from json')
+    ok_(account['accountSum'], msg='Failed getting account sum from json')
+    ok_(account['accountCurrency'], msg='Failed getting account currency from json')
 
     pprint.pprint(accounts)
+
+def test_get_orders():
+    session = RestSession()
+    accounts = session.get_accounts()
+    orders = session.get_orders(account_id=accounts[0]['id'])
+
+    print "Result:"
+    pprint.pprint(orders)
+    ok_(orders)
+
 
 def test_buy_ericsson():
     session = RestSession()
