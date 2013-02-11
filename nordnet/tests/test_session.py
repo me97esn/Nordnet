@@ -36,10 +36,10 @@ def test_buy_ericsson():
     session = RestSession()
     accounts = session.get_accounts()
 
-    account = session.buy(volume=1, price=100, identifier=101,account_id=accounts[0]['id'])
+    account = session.buy(volume=1, price=64, identifier=101,account_id=accounts[0]['id'])
 
     pprint.pprint(account)
-    ok_(account['accountCurrency'], msg='Failed getting account from json')
+    ok_(account['resultCode'], msg='Failed buying a stock')
 
     pprint.pprint(accounts)
 

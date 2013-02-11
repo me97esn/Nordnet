@@ -122,10 +122,14 @@ class RestSession(RestBase):
 
     @withAuth
     def buy(self, **kwargs):
-        return self.post(relative_url='/accounts/%s/orders' % kwargs['account_id'],
-                         data={'identifier':kwargs['identifier'],'marketID':self.marketID,
-                            'price':kwargs['price'],'volume':kwargs['volume'],'currency':self.currency,
-                            'side':'buy'})
+        data = {'identifier': kwargs['identifier'], 'marketID': self.marketID, 'price': kwargs['price'],
+                       'volume': kwargs['volume'], 'currency': self.currency, 'side': 'buy'}
+        url = '/accounts/%s/orders' % kwargs['account_id']
+
+        print "posting %s to %s" % (data, url)
+
+        return self.post(relative_url=url,
+                         data=data)
 
 
 
