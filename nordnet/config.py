@@ -51,6 +51,11 @@ class NordnetConfig(object):
     def password(self):
         """ Getter for password """
         return self._get_field('Session', 'password')
+
+    @property
+    def account_id(self):
+        """ Getter for password """
+        return self._get_field('Session', 'account_id')
     
     @property
     def service(self):

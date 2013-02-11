@@ -132,7 +132,7 @@ class RestSession(RestBase):
     def buy(self, **kwargs):
         data = {'identifier': kwargs['identifier'], 'marketID': self.marketID, 'price': kwargs['price'],
                        'volume': kwargs['volume'], 'currency': self.currency, 'side': 'buy'}
-        url = '/accounts/%s/orders' % kwargs['account_id']
+        url = '/accounts/%s/orders' % config.account_id
 
         print "posting %s to %s" % (data, url)
 
@@ -142,7 +142,7 @@ class RestSession(RestBase):
     def sell(self, **kwargs):
         data = {'identifier': kwargs['identifier'], 'marketID': self.marketID, 'price': kwargs['price'],
                        'volume': kwargs['volume'], 'currency': self.currency, 'side': 'sell'}
-        url = '/accounts/%s/orders' % kwargs['account_id']
+        url = '/accounts/%s/orders' % config.account_id
 
         print "posting %s to %s" % (data, url)
 

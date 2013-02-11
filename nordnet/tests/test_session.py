@@ -45,18 +45,15 @@ def test_get_orders():
 
 def test_buy():
     session = RestSession()
-    accounts = session.get_accounts()
+    result = session.buy(volume=1, price=64, identifier=101)
 
-    account = session.buy(volume=1, price=64, identifier=101,account_id=accounts[0]['id'])
-
-    pprint.pprint(account)
-    ok_(account['resultCode'], msg='Failed buying a stock')
+    pprint.pprint(result)
+    ok_(result['resultCode'], msg='Failed buying a stock')
 
 def test_sell():
     session = RestSession()
-    accounts = session.get_accounts()
 
-    result = session.sell(volume=1, price=64, identifier=101,account_id=accounts[0]['id'])
+    result = session.sell(volume=1, price=64, identifier=101)
 
     pprint.pprint(result)
     ok_(result['resultCode'], msg='Failed buying a stock')
