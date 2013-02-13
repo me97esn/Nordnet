@@ -30,6 +30,7 @@ class RestBase():
     auth_headers = None
     marketID = 11
     currency = 'SEK'
+    auth_session_key = None
 
     def post(self, relative_url='/', data={}):
         url = 'https://%s/%s%s' % (config.base_url,config.api_version, relative_url)
@@ -89,8 +90,9 @@ class withAuth(RestBase):
 
         response = connection.getresponse()
         response_as_json = jloads(response.read())
+        self.auth_session_key = response_as_json['session_key']
 
-        basic_auth = b64encode("%s:%s" % (response_as_json['session_key'], response_as_json['session_key']))
+        basic_auth = b64encode("%s:%s" % (self.auth_session_key, self.auth_session_key))
 
         self.auth_headers = no_auth_headers.copy()
         self.auth_headers['Authorization']="Basic %s" %  (basic_auth)
@@ -99,13 +101,19 @@ class withAuth(RestBase):
         self.decorated_function = f
 
     def __call__(self, **kwargs):
-        # TODO should check if session is alive, and login again if it has timedout
+        if self.auth_session_key:
+            logged_in_response = self.request(method='PUT', relative_url="/login/%s" % self.auth_session_key)
+            if not logged_in_response['logged_in']:
+                # Set auth stuff to None so that a new session is created
+                self.connection = None
+                self.auth_headers = None
+                self.auth_session_key = None
+
         if self.connection is None:
             self.connect()
 
         if self.auth_headers is None:
             self.login()
-
 
         return self.decorated_function(self, **kwargs)
 
@@ -115,6 +123,10 @@ class RestSession(RestBase):
     @withAuth
     def get_accounts(self, **kwargs):
         return self.request(method='GET', relative_url='/accounts')
+
+    @withAuth
+    def logout(self, **kwargs):
+        return self.request(method='DELETE', relative_url="/login/%s" % self.auth_session_key)
 
     @withAuth
     def get_account(self, **kwargs):

@@ -42,6 +42,22 @@ def test_get_orders():
     pprint.pprint(orders)
     ok_(orders)
 
+def test_logout_and_login():
+    """Every call marked with @withAuth should check if session is alive and reconnect otherwise
+    """
+    session = RestSession()
+    ok_(session.get_accounts())
+    auth_before_logout = session.auth_headers
+    
+    # Should not create a new session if still logged in
+    session.get_accounts()
+
+    # But after a logout a new session should be created
+    session.logout()
+    ok_(session.get_accounts()[0]['id'])
+
+    print "session.auth_headers: %s, auth_before_logout:%s" % (session.auth_headers,auth_before_logout)
+
 
 def test_buy():
     session = RestSession()
