@@ -3,7 +3,7 @@ from nordnet.feeds import *
 #from mock import Mock, MagicMock
 from exam.mock import Mock
 
-def _test_handle_data_chunk():
+def test_handle_data_chunk():
 	ok_(False)
 
 def test_read_part_of_message():
@@ -11,7 +11,7 @@ def test_read_part_of_message():
 	msg2 = "1"
 	msg3 = "}\n{"
 	msg4 = "2}\n"
-	msg5 = "{3}\n"
+	msg5 = "{3}\n{4"
 
 	ih = FeedInputHandler()
 	ih.handle_data_chunk = Mock()
@@ -41,5 +41,6 @@ def test_read_part_of_message():
 	#ih.handle_data_chunk.assert_not_called_with( '{1}')
 	#ih.handle_data_chunk.assert_not_called_with( '{2}')
 	ih.handle_data_chunk.assert_called_with( '{3}')
+	ok_(ih.buffered_input == '{4', "input should be '{4', but was '%s'" % ih.buffered_input)
 	
 	

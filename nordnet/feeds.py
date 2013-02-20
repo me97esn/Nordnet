@@ -6,12 +6,12 @@ class FeedInputHandler():
 		self.buffered_input = self.buffered_input + input
 		split_input = self.buffered_input.split('\n')
 		complete_chunks = split_input[0:-1]
-		
+
 		for chunk in complete_chunks:
-			print "handle chunk %s" % chunk
 			self.handle_data_chunk(chunk)
 
-		# TODO remove the handled chunks from buffered input
+		# remove the handled chunks from buffered input
+		self.buffered_input = ''.join(split_input[-1:])
 
 	def handle_data_chunk(self, chunk):
 		pass
