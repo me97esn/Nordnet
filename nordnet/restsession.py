@@ -32,28 +32,6 @@ class RestBase():
     currency = 'SEK'
     auth_session_key = None
 
-    def post(self, relative_url='/', data={}):
-        url = 'https://%s/%s%s' % (config.base_url,config.api_version, relative_url)
-
-        r = requests.post(url,
-                      data=data,
-                      headers=self.auth_headers
-        ).text
-        return json.loads(r)
-
-
-    def request(self, relative_url='/', method='GET', ):
-        connectionstring = 'https://' + config.base_url \
-            + '/' + config.api_version + relative_url
-
-        self.connection.request(method,
-                           connectionstring,
-                           '',
-                           headers=self.auth_headers)
-        response = self.connection.getresponse()
-        return jloads(response.read())
-
-class withAuth(RestBase):
     def make_hash(self):
         """ Makes the key for authentication according to the
         specification on Nordnets page """
@@ -96,6 +74,31 @@ class withAuth(RestBase):
 
         self.auth_headers = no_auth_headers.copy()
         self.auth_headers['Authorization']="Basic %s" %  (basic_auth)
+        return response_as_json
+
+    def post(self, relative_url='/', data={}):
+        url = 'https://%s/%s%s' % (config.base_url,config.api_version, relative_url)
+
+        r = requests.post(url,
+                      data=data,
+                      headers=self.auth_headers
+        ).text
+        return json.loads(r)
+
+
+    def request(self, relative_url='/', method='GET', ):
+        connectionstring = 'https://' + config.base_url \
+            + '/' + config.api_version + relative_url
+
+        self.connection.request(method,
+                           connectionstring,
+                           '',
+                           headers=self.auth_headers)
+        response = self.connection.getresponse()
+        return jloads(response.read())
+
+class withAuth(RestBase):
+    
 
     def __init__(self, f):
         self.decorated_function = f
