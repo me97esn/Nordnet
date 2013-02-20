@@ -3,9 +3,6 @@ from nordnet.feeds import *
 #from mock import Mock, MagicMock
 from exam.mock import Mock
 
-def test_handle_data_chunk():
-	ok_(False)
-
 def test_read_part_of_message():
 	msg1 = "{"
 	msg2 = "1"
