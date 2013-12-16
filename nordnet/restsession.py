@@ -128,6 +128,15 @@ class RestSession(RestBase):
         return self.request(method='GET', relative_url='/accounts')
 
     @withAuth
+    def get_lists(self, **kwargs):
+        return self.request(method='GET', relative_url='/lists/' + kwargs['list_id'])
+
+
+    @withAuth
+    def get_instruments(self, **kwargs):
+        return self.request(method='GET', relative_url='/instruments')
+
+    @withAuth
     def logout(self, **kwargs):
         return self.request(method='DELETE', relative_url="/login/%s" % self.auth_session_key)
 
@@ -142,6 +151,15 @@ class RestSession(RestBase):
     @withAuth
     def get_positions(self, **kwargs):
         return self.request(method='GET', relative_url="/accounts/%s/positions" % (kwargs['account_id']))
+
+
+    @withAuth
+    def get_ledgers(self, **kwargs):
+        return self.request(method='GET', relative_url="/accounts/%s/ledgers" % (kwargs['account_id']))
+
+    @withAuth
+    def get_trades(self, **kwargs):
+        return self.request(method='GET', relative_url="/accounts/%s/trades" % (kwargs['account_id']))
 
     @withAuth
     def buy(self, **kwargs):

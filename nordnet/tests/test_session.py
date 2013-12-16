@@ -27,18 +27,37 @@ def test_get_account():
     accounts = session.get_accounts()
     account = session.get_account(account_id=accounts[0]['id'])
 
+    pprint.pprint("--- Accounts ---")
     pprint.pprint(account)
     ok_(account['accountSum'], msg='Failed getting account sum from json')
     ok_(account['accountCurrency'], msg='Failed getting account currency from json')
 
     pprint.pprint(accounts)
 
+
+def test_get_lists():
+    session = RestSession()
+    lists = session.get_lists(list_id='1')
+    pprint.pprint("--- Lists ---")
+
+    pprint.pprint(lists)
+
+def test_get_positions():
+    session = RestSession()
+    accounts = session.get_accounts()
+    positions = session.get_positions(account_id=accounts[0]['id'])
+
+    pprint.pprint("--- Positions ---")
+    pprint.pprint(positions)
+    ok_(positions[0]['marketValueAcc'], msg='Failed getting marketValueAcc from json')
+
+
 def test_get_orders():
     session = RestSession()
     accounts = session.get_accounts()
     orders = session.get_orders(account_id=accounts[0]['id'])
 
-    print "Result:"
+    print "--- Orders: ---"
     pprint.pprint(orders)
     ok_(orders)
 
@@ -61,7 +80,7 @@ def test_logout_and_login():
 
 def test_buy():
     session = RestSession()
-    result = session.buy(volume=1, price=64, identifier=101)
+    result = session.buy(volume=1000000, price=64, identifier=101)
 
     pprint.pprint(result)
     ok_(result['resultCode'], msg='Failed buying a stock')
