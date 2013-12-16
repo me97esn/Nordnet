@@ -105,7 +105,10 @@ class withAuth(RestBase):
 
     def __call__(self, **kwargs):
         if self.auth_session_key:
-            logged_in_response = self.request(method='PUT', relative_url="/login/%s" % self.auth_session_key)
+            relative_url="/login/%s" % self.auth_session_key
+            url = 'https://%s/%s%s' % (config.base_url,config.api_version, relative_url)
+            logged_in_response = requests.put(url, headers=self.auth_headers)
+
             if not logged_in_response['logged_in']:
                 # Set auth stuff to None so that a new session is created
                 self.connection = None
