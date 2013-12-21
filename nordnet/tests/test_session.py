@@ -15,9 +15,11 @@ from nordnet.feeds import NordnetSocket
 
 def test_connect_socket_and_rest():
     nordnet_socket = NordnetSocket()
-    nordnet_socket.open_socket()
+    nordnet_socket.open_socket( nordnet_socket.s )
 
     session = RestSession()
+    accounts = session.get_accounts()
+    accounts = session.get_accounts()
     accounts = session.get_accounts()
 
 

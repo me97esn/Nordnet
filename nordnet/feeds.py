@@ -3,23 +3,12 @@ import socket
 import ssl
 import json
 import jsonrpclib
-import onthestockmarket
+
 from nordnet.restsession import RestBase
 
 import logging
 
 import __main__ as mod_main
-import sys, os
-
-sys.path.append('.')
-
-from django.core.management import setup_environ
-import settings
-
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
-
-
-
 
 class NordnetSocket:
     def __init__(self):
