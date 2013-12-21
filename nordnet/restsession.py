@@ -48,6 +48,7 @@ class RestBase():
     def connect(self):
         """ Establishing a connection """
         self.connection = HTTPSConnection(config.url)
+        self.connection.set_debuglevel(1)
         return self.connection
 
     def login(self):
@@ -94,12 +95,11 @@ class RestBase():
                            connectionstring,
                            '',
                            headers=self.auth_headers)
+        print "%s '%s' with headers %s" % (method, connectionstring, self.auth_headers)
         response = self.connection.getresponse()
         return jloads(response.read())
 
 class withAuth(RestBase):
-    
-
     def __init__(self, f):
         self.decorated_function = f
 
@@ -109,7 +109,7 @@ class withAuth(RestBase):
             url = 'https://%s/%s%s' % (config.base_url,config.api_version, relative_url)
             logged_in_response = requests.put(url, headers=self.auth_headers)
 
-            if not logged_in_response['logged_in']:
+            if not jloads( logged_in_response.text )['logged_in']:
                 # Set auth stuff to None so that a new session is created
                 self.connection = None
                 self.auth_headers = None
@@ -128,6 +128,7 @@ class RestSession(RestBase):
 
     @withAuth
     def get_accounts(self, **kwargs):
+        print "get accounts..."
         return self.request(method='GET', relative_url='/accounts')
 
     @withAuth

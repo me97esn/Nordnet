@@ -11,23 +11,36 @@ import ssl
 import json
 from nose.tools import *
 from nordnet.restsession import *
+from nordnet.feeds import NordnetSocket
+
+def test_connect_socket_and_rest():
+    nordnet_socket = NordnetSocket()
+    nordnet_socket.open_socket()
+
+    session = RestSession()
+    accounts = session.get_accounts()
+
+
 
 def test_get_accounts():
     """ Connecting and getting the accounts """
+    pprint.pprint("--- Accounts ---")
     session = RestSession()
     accounts = session.get_accounts()
-    print "accounts response: %s" % (accounts)
-    ok_(accounts[0]['id'], msg='Failed getting accounts from json')
-    print '\Accounts from server:\n'
+    connection0 = session.connection
+
+    accounts = session.get_accounts()
+    ok_(connection0 is session.connection)
 
     pprint.pprint(accounts)
 
 def test_get_account():
+    pprint.pprint("--- Account ---")
+
     session = RestSession()
     accounts = session.get_accounts()
     account = session.get_account(account_id=accounts[0]['id'])
 
-    pprint.pprint("--- Accounts ---")
     pprint.pprint(account)
     ok_(account['accountSum'], msg='Failed getting account sum from json')
     ok_(account['accountCurrency'], msg='Failed getting account currency from json')
@@ -36,32 +49,36 @@ def test_get_account():
 
 
 def test_get_lists():
-    session = RestSession()
-    lists = session.get_lists(list_id='1')
     pprint.pprint("--- Lists ---")
 
-    pprint.pprint(lists)
+    session = RestSession()
+    lists = session.get_lists(list_id='1')
+
+    #pprint.pprint(lists)
 
 def test_get_positions():
+    pprint.pprint("--- Positions ---")
     session = RestSession()
     accounts = session.get_accounts()
     positions = session.get_positions(account_id=accounts[0]['id'])
 
-    pprint.pprint("--- Positions ---")
     pprint.pprint(positions)
     ok_(positions[0]['marketValueAcc'], msg='Failed getting marketValueAcc from json')
 
 
 def test_get_orders():
+    print "--- Orders: ---"
+
     session = RestSession()
     accounts = session.get_accounts()
     orders = session.get_orders(account_id=accounts[0]['id'])
 
-    print "--- Orders: ---"
     pprint.pprint(orders)
     ok_(orders)
 
 def test_logout_and_login():
+    print "--- Log in and out: ---"
+
     """Every call marked with @withAuth should check if session is alive and reconnect otherwise
     """
     session = RestSession()
@@ -79,6 +96,8 @@ def test_logout_and_login():
 
 
 def test_buy():
+    print "--- Buy: ---"
+
     session = RestSession()
     result = session.buy(volume=1000000, price=64, identifier=101)
 
@@ -86,6 +105,8 @@ def test_buy():
     ok_(result['resultCode'], msg='Failed buying a stock')
 
 def test_sell():
+    print "--- Sell: ---"
+
     session = RestSession()
 
     result = session.sell(volume=1, price=64, identifier=101)

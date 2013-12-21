@@ -18,53 +18,15 @@ import settings
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
-from onthestockmarket.models import *
+
 
 
 class NordnetSocket:
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.feed_input_handler = FeedInputHandler()
-        self.feed_input_handler.handle_data_chunk = self.send_stock_info_to_onthestockmarket
+        self.feed_input_handler.handle_data_chunk = lambda : None
 
-
-    def send_stock_info_to_onthestockmarket(self, json_str):
-        json_obj = json.loads(json_str)
-        print "params: %s" % json_obj
-        if not json_obj['cmd'] == 'heartbeat':
-            logging.info("add_stock_history with params %s" % (json_obj))
-            params = json_obj['args']
-            identifyer = params["i"]
-
-            try:
-                stock = Stock.objects.get(name=identifyer)
-                logging.info("Found stock '%s'" % (identifyer))
-            except Stock.DoesNotExist, e:
-                logging.info("Couldn't find stock with name '%s', creating a new stock" % (identifyer))
-                stock = Stock(name=identifyer)
-                stock.save()
-            history = StockHistory(
-                stock=stock,
-                bid=params.get('bid'), # Deprecated, should use bid instead
-
-                ask=params.get('ask'),
-                ask_volume=params.get('ask_volume'),
-                high_price=params.get('high'),
-                last_price=params.get('last'),
-                lot_size=params.get('lot_size'),
-                low_price=params.get('low'),
-                open_price=params.get('open'),
-                turnover=params.get('turnover'),
-                turnover_volume=params.get('turnover_volume'),
-                time=params.get('trade_timestamp'),
-            )
-            history.save()
-            logging.info("Stock history %s saved" % (history))
-            logging.info("Now, call update() since the stock histories might have changed")
-            if hasattr(self, 'takeActionsOnHistory'):
-                self.takeActionsOnHistory()
-
-            return 'Done'
 
     def listen(self):
         ssl_socket = self.open_socket(self.s)

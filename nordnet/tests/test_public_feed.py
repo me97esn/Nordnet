@@ -3,7 +3,7 @@ import socket
 import ssl
 import json
 
-from nordnet.restsession import *
+
 
 def _test_public_feed():
     """ Testing the public feed """
