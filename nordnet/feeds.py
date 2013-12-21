@@ -4,17 +4,18 @@ import ssl
 import json
 import jsonrpclib
 
-from nordnet.restsession import RestBase
+from nordnet.restsession import RestBase, RestSession
 
 import logging
 
 import __main__ as mod_main
 
 class NordnetSocket:
-    def __init__(self):
+    def __init__(self, rest_session = RestSession()):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.feed_input_handler = FeedInputHandler()
         self.feed_input_handler.handle_data_chunk = lambda : None
+        self.rest_session = rest_session
 
 
     def listen(self):
@@ -37,12 +38,10 @@ class NordnetSocket:
         self.feed_input_handler.handle_input(input)
 
     def open_socket(self, socket):
-        rest_base = RestBase()
-        response = rest_base.login()
 
-        session_key = response['session_key']
-        hostname = response['public_feed']['hostname']
-        port = response['public_feed']['port']
+        session_key = self.rest_session.auth_session_key
+        hostname = self.rest_session.auth_hostname
+        port = self.rest_session.auth_port
 
         ssl_socket = ssl.wrap_socket(socket)
         ssl_socket.connect((hostname, port))

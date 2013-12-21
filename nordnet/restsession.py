@@ -70,6 +70,8 @@ class RestBase():
         response = connection.getresponse()
         response_as_json = jloads(response.read())
         self.auth_session_key = response_as_json['session_key']
+        self.auth_hostname = response_as_json['public_feed']['hostname']
+        self.auth_port = response_as_json['public_feed']['port']
 
         basic_auth = b64encode("%s:%s" % (self.auth_session_key, self.auth_session_key))
 
