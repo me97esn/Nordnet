@@ -11,7 +11,7 @@ import logging
 import __main__ as mod_main
 
 class NordnetSocket:
-    def __init__(self, rest_session = RestSession()):
+    def __init__(self, rest_session = None):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.feed_input_handler = FeedInputHandler()
         self.feed_input_handler.handle_data_chunk = lambda : None
@@ -38,7 +38,6 @@ class NordnetSocket:
         self.feed_input_handler.handle_input(input)
 
     def open_socket(self, socket):
-
         session_key = self.rest_session.auth_session_key
         hostname = self.rest_session.auth_hostname
         port = self.rest_session.auth_port

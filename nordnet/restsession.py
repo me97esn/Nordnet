@@ -41,21 +41,20 @@ class RestBase():
             + b64encode(timestamp)
         rsa = RSA.load_pub_key(config.public_key)
         encrypted_auth = rsa.public_encrypt(auth, RSA.pkcs1_padding)
-        print 'Made hashkey:'
         key = b64encode(encrypted_auth)
         return key
 
     def connect(self):
         """ Establishing a connection """
-        self.connection = HTTPSConnection(config.url)
+        self.connection = HTTPSConnection(config.url, timeout=30)
         self.connection.set_debuglevel(1)
         return self.connection
 
     def login(self):
+        """ Logs in to the server """
         hashkey = self.make_hash()
         connection = self.connection or self.connect()
 
-        """ Logs in to the server """
         parameters = urlencode({ 'service' : config.service,
                                  'auth' : hashkey })
         print "parameters for login: '%s'" % (parameters)
@@ -89,17 +88,24 @@ class RestBase():
         return json.loads(r)
 
 
-    def request(self, relative_url='/', method='GET', ):
+    def get(self, relative_url='/'):
         connectionstring = 'https://' + config.base_url \
             + '/' + config.api_version + relative_url
 
-        self.connection.request(method,
-                           connectionstring,
-                           '',
-                           headers=self.auth_headers)
-        print "%s '%s' with headers %s" % (method, connectionstring, self.auth_headers)
-        response = self.connection.getresponse()
-        return jloads(response.read())
+        r = requests.get(connectionstring,
+                      headers=self.auth_headers)
+
+        return r.json()
+
+
+    def delete(self, relative_url='/'):
+        connectionstring = 'https://' + config.base_url \
+            + '/' + config.api_version + relative_url
+
+        r = requests.delete(connectionstring,
+                      headers=self.auth_headers)
+
+        return r.json()
 
 class withAuth(RestBase):
     def __init__(self, f):
@@ -112,15 +118,20 @@ class withAuth(RestBase):
             logged_in_response = requests.put(url, headers=self.auth_headers)
 
             if not jloads( logged_in_response.text )['logged_in']:
+                print " :::: set all auth to None and redo the login next time ..."
+
                 # Set auth stuff to None so that a new session is created
                 self.connection = None
                 self.auth_headers = None
                 self.auth_session_key = None
 
         if self.connection is None:
+            print " :::: connect ..."
+
             self.connect()
 
         if self.auth_headers is None:
+            print " :::: login ..."
             self.login()
 
         return self.decorated_function(self, **kwargs)
@@ -131,41 +142,41 @@ class RestSession(RestBase):
     @withAuth
     def get_accounts(self, **kwargs):
         print "get accounts..."
-        return self.request(method='GET', relative_url='/accounts')
+        return self.get(relative_url='/accounts')
 
     @withAuth
     def get_lists(self, **kwargs):
-        return self.request(method='GET', relative_url='/lists/' + kwargs['list_id'])
+        return self.get(relative_url='/lists/' + kwargs['list_id'])
 
 
     @withAuth
     def get_instruments(self, **kwargs):
-        return self.request(method='GET', relative_url='/instruments')
+        return self.get(relative_url='/instruments')
 
     @withAuth
     def logout(self, **kwargs):
-        return self.request(method='DELETE', relative_url="/login/%s" % self.auth_session_key)
+        return self.delete(relative_url="/login/%s" % self.auth_session_key)
 
     @withAuth
     def get_account(self, **kwargs):
-        return self.request(method='GET', relative_url='/accounts/' + kwargs['account_id'])
+        return self.get(relative_url='/accounts/' + kwargs['account_id'])
 
     @withAuth
     def get_orders(self, **kwargs):
-        return self.request(method='GET', relative_url="/accounts/%s/orders" % (kwargs['account_id']))
+        return self.get(relative_url="/accounts/%s/orders" % (kwargs['account_id']))
 
     @withAuth
     def get_positions(self, **kwargs):
-        return self.request(method='GET', relative_url="/accounts/%s/positions" % (kwargs['account_id']))
+        return self.get(relative_url="/accounts/%s/positions" % (kwargs['account_id']))
 
 
     @withAuth
     def get_ledgers(self, **kwargs):
-        return self.request(method='GET', relative_url="/accounts/%s/ledgers" % (kwargs['account_id']))
+        return self.get(relative_url="/accounts/%s/ledgers" % (kwargs['account_id']))
 
     @withAuth
     def get_trades(self, **kwargs):
-        return self.request(method='GET', relative_url="/accounts/%s/trades" % (kwargs['account_id']))
+        return self.get(relative_url="/accounts/%s/trades" % (kwargs['account_id']))
 
     @withAuth
     def buy(self, **kwargs):

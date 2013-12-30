@@ -14,21 +14,24 @@ from nordnet.restsession import *
 from nordnet.feeds import NordnetSocket
 
 def test_connect_socket_and_rest():
+    pprint.pprint("--- socket and rest ---")
     session = RestSession()
-    session.login()
-    nordnet_socket = NordnetSocket(session)
+
+    # First, make sure to login first before connecting socket
+    session.get_accounts()
+    nordnet_socket = NordnetSocket(session.get_accounts)
     nordnet_socket.open_socket( nordnet_socket.s )
 
-    accounts = session.get_accounts()
-    accounts = session.get_accounts()
-    accounts = session.get_accounts()
-
+    session.get_accounts()
+    session.get_accounts()
+    session.get_accounts()
 
 
 def test_get_accounts():
     """ Connecting and getting the accounts """
     pprint.pprint("--- Accounts ---")
     session = RestSession()
+
     accounts = session.get_accounts()
     connection0 = session.connection
 
@@ -41,6 +44,7 @@ def test_get_account():
     pprint.pprint("--- Account ---")
 
     session = RestSession()
+
     accounts = session.get_accounts()
     account = session.get_account(account_id=accounts[0]['id'])
 
@@ -55,13 +59,17 @@ def test_get_lists():
     pprint.pprint("--- Lists ---")
 
     session = RestSession()
+
+
     lists = session.get_lists(list_id='1')
 
     #pprint.pprint(lists)
 
 def test_get_positions():
     pprint.pprint("--- Positions ---")
+
     session = RestSession()
+
     accounts = session.get_accounts()
     positions = session.get_positions(account_id=accounts[0]['id'])
 
@@ -73,6 +81,7 @@ def test_get_orders():
     print "--- Orders: ---"
 
     session = RestSession()
+
     accounts = session.get_accounts()
     orders = session.get_orders(account_id=accounts[0]['id'])
 
@@ -85,6 +94,7 @@ def test_logout_and_login():
     """Every call marked with @withAuth should check if session is alive and reconnect otherwise
     """
     session = RestSession()
+
     ok_(session.get_accounts())
     auth_before_logout = session.auth_headers
     
@@ -102,6 +112,7 @@ def test_buy():
     print "--- Buy: ---"
 
     session = RestSession()
+
     result = session.buy(volume=1000000, price=64, identifier=101)
 
     pprint.pprint(result)
